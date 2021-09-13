@@ -18,16 +18,19 @@ def write_history(some_list: List, cmd_name: str, user_id: int) -> None:
         file.write(our_string)
 
 
-def read_history(user_id: int) -> List:
+def read_history(user_id: int) -> List or bool:
     """
     Функция чтения истории запросов определённого пользователя
     :param user_id: id пользователя, чтобы при запросе истории показать только необходимое
     :return: список
     """
     result = []
-    with open('history.txt', 'r', encoding='utf-8') as file:
-        for line in file:
-            if line.startswith(str(user_id)):
-                result.append(line.replace(str(user_id) + ' :: ', ""))
-
+    try:
+        with open('history.txt', 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.startswith(str(user_id)):
+                    result.append(line.replace(str(user_id) + ' :: ', ""))
+    except FileExistsError:
+        return None
+    else:
         return result

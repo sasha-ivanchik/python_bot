@@ -25,7 +25,10 @@ def city_search(some_str: str) -> Dict and str:
 
     querystring = {"query": city, "locale": locale}
 
-    response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+    except requests.Timeout:
+        return 'timeout', locale
 
     if response.status_code == 200:
         try:

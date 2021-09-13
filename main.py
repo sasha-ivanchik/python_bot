@@ -180,6 +180,7 @@ def show_calendar(call: types.CallbackQuery) -> None:
                      )
 
 
+@logger.catch()
 def get_quantity(msg: types.Message) -> None:
     """
     Функция получает максимальное число предложений, которое
@@ -203,6 +204,7 @@ def get_quantity(msg: types.Message) -> None:
         cmd_bestdeal(msg)
 
 
+@logger.catch()
 @bot.callback_query_handler(func=lambda xz: xz.data and xz.data.endswith('_cur'))
 def choose_currency(call: types.CallbackQuery) -> None:
     currency = call.data[:-4]
@@ -219,6 +221,7 @@ def choose_currency(call: types.CallbackQuery) -> None:
     bot.register_next_step_handler(call.message, get_quantity)
 
 
+@logger.catch()
 @bot.callback_query_handler(func=lambda xz: xz.data and xz.data.endswith('_city'))
 def choose_city(callback_query: types.CallbackQuery) -> None:
     code = callback_query.data[:-5].split(', ')
@@ -245,6 +248,7 @@ def choose_city(callback_query: types.CallbackQuery) -> None:
         show_calendar(callback_query)
 
 
+@logger.catch()
 @bot.callback_query_handler(func=lambda call: call.data.startswith(calendar_1_callback.prefix))
 def choose_date_in(call: types.CallbackQuery) -> None:
     """
@@ -281,6 +285,7 @@ def choose_date_in(call: types.CallbackQuery) -> None:
         cmd_start(call)
 
 
+@logger.catch()
 @bot.callback_query_handler(func=lambda call: call.data.startswith(calendar_2_callback.prefix))
 def choose_date_out(call: types.CallbackQuery) -> None:
     """
@@ -323,6 +328,7 @@ def choose_date_out(call: types.CallbackQuery) -> None:
         cmd_start(call)
 
 
+@logger.catch()
 def get_city(message: types.Message) -> None:
     """
     Функция проверки названия города и поиска его данных на Hotels.com через импортированную функцию city_search.
@@ -332,9 +338,12 @@ def get_city(message: types.Message) -> None:
         bot.send_message(message.from_user.id, 'Идёт обработка запроса')
         location_data, request_data['regular']['locale'] = city_search(message.text)
         # вывод найденных вариантов
-        if location_data:
+        if location_data and location_data != 'timeout':
             keyboard = city_buttons(location_data)
             bot.send_message(message.from_user.id, 'Возможные варианты', reply_markup=keyboard)
+        elif location_data and location_data == 'timeout':
+            bot.send_message(message.from_user.id, 'Сервер долго не отвечает. Попробуйте еще раз')
+            cmd_start(message)
         else:
             bot.send_message(message.from_user.id, 'Не удалось найти город по вашему запросу')
             cmd_start(message)
@@ -343,6 +352,7 @@ def get_city(message: types.Message) -> None:
         cmd_start(message)
 
 
+@logger.catch()
 @bot.message_handler(commands=['start'])
 def cmd_start(message: types.Message or types.CallbackQuery) -> None:
     """
@@ -356,6 +366,7 @@ def cmd_start(message: types.Message or types.CallbackQuery) -> None:
         bot.register_next_step_handler(message, get_city)
 
 
+@logger.catch()
 @bot.message_handler(commands=['history'])
 def cmd_history(msg: types.Message) -> None:
     """
@@ -363,14 +374,19 @@ def cmd_history(msg: types.Message) -> None:
     :param msg: сообщение от пользователя
     :return: ответное сообщение с историей запросов данного пользователя
     """
-    history_listing = read_history(user_id= msg.from_user.id)
-    counter = 1
-    for story in history_listing:
-        bot.send_message(msg.from_user.id, str(counter)+') ' + story)
-        counter += 1
-    simple_commands['/help'](msg)
+    history_listing = read_history(user_id=msg.from_user.id)
+    if history_listing:
+        counter = 1
+        for story in history_listing:
+            bot.send_message(msg.from_user.id, str(counter) + ') ' + story)
+            counter += 1
+        simple_commands['/help'](msg)
+    else:
+        bot.send_message(msg.from_user.id, "Вы не совершали действий, которые были бы записаны в историю")
+        simple_commands['/help'](msg)
 
 
+@logger.catch()
 def sending_results(msg: types.Message, some_list: List[Dict]) -> None:
     """
     Функция отправляет все найденные предложения пользователю в ТГ
@@ -392,7 +408,7 @@ def sending_results(msg: types.Message, some_list: List[Dict]) -> None:
                     f'*Ссылка для бронирования*  :\n{value["url"]}')
             bot.send_photo(msg.chat.id, photo, caption=text, parse_mode="Markdown")
 
-    write_history(some_list= some_list, cmd_name= request_data['regular']['cmd'], user_id=msg.from_user.id)
+    write_history(some_list=some_list, cmd_name=request_data['regular']['cmd'], user_id=msg.from_user.id)
 
     request_data = empty_data
     simple_commands['/help'](msg)
@@ -414,9 +430,13 @@ def cmd_lowprice_highprice(message: types.Message) -> None:
     if all(request_data['regular'].values()):
         bot.send_message(message.chat.id, 'Идёт обработка запроса')
         answer = hotels_search(request_data['regular'])
-        if answer:
+        if answer and answer != 'timeout':
             sending_results(message, answer)
             request_data = empty_data
+        elif answer == 'timeout':
+            bot.send_message(message.from_user.id, "Сервер долго не отвечает. Попробуйте еще раз")
+            request_data = empty_data
+            cmd_start(message)
         else:
             bot.send_message(message.from_user.id,
                              "К сожалению, не удалось найти подходящие вам предложения. Попробуйте ещё раз")
@@ -428,6 +448,7 @@ def cmd_lowprice_highprice(message: types.Message) -> None:
             cmd_start(message)
 
 
+@logger.catch()
 def get_distance(msg: types.Message) -> None:
     """
     Функция-запрос максимального расстояния до центра города
@@ -451,6 +472,7 @@ def get_distance(msg: types.Message) -> None:
     cmd_bestdeal(msg)
 
 
+@logger.catch()
 def get_money(msg: types.Message) -> None:
     """
     Функция-запрос диапазона подходязщих цен и его проверка
@@ -476,6 +498,7 @@ def get_money(msg: types.Message) -> None:
     bot.register_next_step_handler(msg, get_distance)
 
 
+@logger.catch()
 @bot.message_handler(commands=['bestdeal'])
 def cmd_bestdeal(msg: types.Message) -> None:
     """
@@ -508,6 +531,7 @@ def cmd_bestdeal(msg: types.Message) -> None:
             cmd_start(msg)
 
 
+@logger.catch()
 @bot.message_handler(content_types=['text'])
 def text_handler(message: types.Message) -> None:
     """

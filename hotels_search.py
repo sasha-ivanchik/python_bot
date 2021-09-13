@@ -43,7 +43,7 @@ def hotels_search(some_dict: Dict,
                   page: int = 1,
                   money_min: int = None,
                   money_max: int = None,
-                  ) -> List:
+                  ) -> List or bool:
     """
     Функция поиска топ дорогих или топ дешевых предложений через API сайта hotels.com по заданным параметрам
     :param some_dict: словарь с данными для запроса
@@ -100,7 +100,10 @@ def hotels_search(some_dict: Dict,
         "priceMax": money_max,
     }
 
-    response = requests.request("GET", url, headers=headers, params=querystring, timeout=15)
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring, timeout=15)
+    except requests.Timeout:
+        return "timeout"
 
     if response.status_code == 200:
         for elem in response.json()['data']['body']['searchResults']['results']:
