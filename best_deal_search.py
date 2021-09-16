@@ -4,17 +4,23 @@ from hotels_search import hotels_search
 from hotels_search import foo_for_sort
 
 
-def filtration(list_for_filtration: List, custom_distance: str) -> List:
+def filtration(list_for_filtration: List[Dict],
+               custom_distance: str,
+               min_price: str,
+               max_price: str) -> List:
     """
-    Функция фильтрации полученных от апи предложений по расстоянию до центра города
+    Функция фильтрации полученных от апи предложений по расстоянию до центра города и стоимости
     :param list_for_filtration : список полученных словарей-предложений
     :param custom_distance : строка из запроса, содержит введенное пользователем значение расстояния
+    :param min_price : минимальная стоимость проживания
+    :param max_price : максимальная стоимость проживания
     :return: список словарей-предложений, которые подходят по заданному расстоянию
     """
     filtered_res = []
     for k_elem in list_for_filtration:
         for k_key, k_value in k_elem.items():
-            if clear_distance(k_value) <= float(custom_distance):
+            if (clear_distance(k_value) <= float(custom_distance)
+                    and int(min_price) <= int(k_value['price_in_numbers']) <= int(max_price)):
                 filtered_res.append(k_elem)
 
     return filtered_res
@@ -27,12 +33,12 @@ def clear_distance(dict_for_extract: Dict) -> float:
     :param dict_for_extract: словарь данных конкретного отеля
     :return: float значение расстояния от отеля до центра города
     """
-    pre_distance_frst = re.sub(r'[,]', '.', dict_for_extract['distance'])
-    our_distance_frst = re.findall(r'\b[0-9]*[.]?[0-9]+\b', pre_distance_frst)[0]
-    return float(our_distance_frst)
+    pre_distance = re.sub(r'[,]', '.', dict_for_extract['distance'])
+    our_distance = re.findall(r'\b[0-9]*[.]?[0-9]+\b', pre_distance)[0]
+    return float(our_distance)
 
 
-def best_deal_search(some_dict: Dict, ) -> List:
+def best_deal_search(some_dict: Dict, ) -> List or bool:
     """
     Функция кастомного поиска топ недорогих предложений с учетом максимальной
      и минимальной стоимости и удаленности от центра через API сайта hotels.com
@@ -78,7 +84,10 @@ def best_deal_search(some_dict: Dict, ) -> List:
                                money_max=money_max,
                                )
     # первая фильтрация данных от апи
-    result = filtration(pre_result, max_distance)
+    if pre_result:
+        result = filtration(pre_result, max_distance, min_price=money_min, max_price=money_max)
+    else:
+        return False
 
     # дополняем словарь результатами поиска, если при первом запросе результатов мало
     while len(result) < int(total_offers):
@@ -89,10 +98,12 @@ def best_deal_search(some_dict: Dict, ) -> List:
                                           money_max=money_max,
                                           )
         # фильтрация данных и добавление подходящих в список результатов
-        result.extend(filtration(additional_result, max_distance))
-
+        if additional_result:
+            result.extend(filtration(additional_result, max_distance, min_price=money_min, max_price=money_max))
+        else:
+            return result
         # ограничение по количеству пролистываний
-        if page_counter > 3:
+        if page_counter > 4:
             break
 
     # сортировка полученного списка по стоимости по возрастанию

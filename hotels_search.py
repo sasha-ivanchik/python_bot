@@ -101,23 +101,29 @@ def hotels_search(some_dict: Dict,
     }
 
     try:
-        response = requests.request("GET", url, headers=headers, params=querystring, timeout=15)
+        main_response = requests.request("GET", url, headers=headers, params=querystring, timeout=15)
     except requests.Timeout:
         return "timeout"
 
-    if response.status_code == 200:
-        for elem in response.json()['data']['body']['searchResults']['results']:
+    try:
+        response = main_response.json()
+    except Exception:
+        return False
+
+    if main_response.status_code == 200 and response['result'] == 'OK':
+
+        for elem in response['data']['body']['searchResults']['results']:
             result[elem['name']] = {
                 'distance': elem['landmarks'][0]['distance'],
                 'photo_url': elem['optimizedThumbUrls']['srpDesktop'],
                 'url': "https://www.hotels.com/ho" + str(elem['id']),
             }
+
             # проверка наличия полной стоимости проживания и расчёт при её отсутствии
             nights = accommodation(some_dict['check_in'], some_dict['check_out'])
             if 'fullyBundledPricePerStay' in elem['ratePlan']['price']:
                 field_nums_list = re.findall(r'\d+', elem['ratePlan']['price']['fullyBundledPricePerStay'])
-                result[elem['name']]['price'] = (field_nums_list[0] + ' ' + some_dict["currency"] +
-                                                 ' ' + ' за ' + field_nums_list[1])
+                result[elem['name']]['price'] = f"{field_nums_list[0]} {some_dict['currency']} за {nights} суток"
                 result[elem['name']]['price_in_numbers'] = int(field_nums_list[0])
             else:
                 result[elem['name']]['price'] = (re.sub(r"[^0-9]", "", elem["ratePlan"]["price"]["current"]) +

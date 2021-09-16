@@ -481,8 +481,8 @@ def get_money(msg: types.Message) -> None:
     if msg.text:
         money_range = re.findall(r'\d+', msg.text)
         if len(money_range) == 2:
-            request_data['best_deal']['money_min'] = min(money_range)
-            request_data['best_deal']['money_max'] = max(money_range)
+            request_data['best_deal']['money_min'] = int(min(money_range))
+            request_data['best_deal']['money_max'] = int(max(money_range))
             bot.send_message(msg.from_user.id,
                              f"Минимальная стоимость от : {request_data['best_deal']['money_min']}\n"
                              f"Максимальная стоимость до : {request_data['best_deal']['money_max']}")
