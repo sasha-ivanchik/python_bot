@@ -1,8 +1,14 @@
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+
 # токен от телеграм
-TG_TOKEN = '1950627458:AAFixY3sLQuT0UbcsDfhNmCr1S7JzxJZhDw'
+TG_TOKEN = os.getenv('TG_TOKEN')
 
-# ключ от апи хотелс.ком
-RAPID_KEY = "30029b5135mshd7e47cf7a55b0f6p183fc2jsna4ab68a126c4"
+# ключ от апи Hotels.com
+RAPID_KEY = os.getenv('RAPID_KEY')
 
-# хост апи хотелс.ком
-RAPID_HOST = "hotels4.p.rapidapi.com"
+# хост апи Hotels.com
+RAPID_HOST = os.getenv('RAPID_HOST')
