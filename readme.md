@@ -111,8 +111,7 @@ pip install -r requirements.txt
 9. Выбрать бесплатный пакет (Basic);
 10. Необходимо получить ТОКЕН и ХОСТ от rapidapi.com и внести их в 
 файл _config_example.py;
-11. Удалите файл _config.py;
-12. Переименуйте _config_example.py в _config.py
+11. Переименуйте _config_example.py в _config.py
 
 Бот готов к работе!
 
