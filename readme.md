@@ -1,122 +1,117 @@
-## Telegram-бот для анализа сайта Hotels.com и поиска подходящих пользователю отелей
+## Telegram bot for analyzing the Hotels.com website and searching hotels suitable for the user
 
 ----
-Бот написан с использованием библиотеки
+The bot is written using the library
 [Pytelegrambotapi](https://pypi.org/project/pyTelegramBotAPI/)
 
-Бот использует [API сайта Hotels.com](https://rapidapi.com/apidojo/api/hotels4)
+Bot uses [API сайта Hotels.com](https://rapidapi.com/apidojo/api/hotels4)
 
 ---
-### Что умеет бот:
+### What a bot can do:
 
-- принимает обязательные данные - название города, даты заезда/выезда и 
-желаемую валюту для отображения в предложениях;
-- ввод названия города возможен на русском и английском языках;
-- поиск самых дорогих/дешевых предложений по заявленным датам 
-в указанном городе;
-- поиск предложений в указанном ценовом диапазоне с учётом 
-максимального удаления от центра города;
-- сохраняет историю запросов пользователя и может её вывести в сообщениях;
-- обрабатывает только текстовые сообщения. При получении сообщения иного 
-типа, бот проинформирует пользователя о невозможности обработки данного сообщения;
+- accepts mandatory data - city name, arrival / departure dates and the desired currency to be displayed in offers;
+- city name input is possible in Russian and English;
+- search for the most expensive / the cheapest offers by stated dates in the specified city;
+- search for offers in the specified price range, taking into account the maximum distance from the city center;
+- saves the history of user requests and can display it in messages;
+- processes only text messages. When receiving a message of a different type, the bot will inform the user about the impossibility of processing this message;
 
 ---
-### Команды:
+### Commands:
 
-- /help — помощь по командам бота,
-- /start — начало ввода пользователем необходимой для поиска информации,
-- /lowprice — вывод самых дешёвых отелей в городе,
-- /highprice — вывод самых дорогих отелей в городе,
-- /bestdeal — вывод отелей, наиболее подходящих по цене и расположению от центра.
-- /history — вывод истории поиска отелей
-- /hello_world — тестовая команда
+- /help — help command,
+- /start — the beginning of user input of the information necessary for the search,
+- /lowprice — listing of the cheapest hotels in the city,
+- /highprice — listing of the most expensive hotels in the city,
+- /bestdeal — listing of hotels that are most suitable for the price and location from the center,
+- /history — hotel search history display,
+- /hello_world — test command,
 
 ---
-### Описание работы:
-После ввода первого сообщения, пользователь получает ответ от бота с предложением
-начать поиск предложений. После, бот ожидает дальнейшей команды от пользователя.
+### Work description:
+After entering the first message, the user receives a response from the bot with a 
+proposal to start searching for offers. After that, the bot awaits further commands from the user.
 
 <br/><br/>
-#### Команда /start
-После ввода команды у пользователя запрашивается:
-1. Город, где будет проводиться поиск
-2. Выбор города из возможных предложенных вариантов.
-3. Дата заезда
-4. Дата выезда
-5. Валюта для отображения стоимости предложений
-6. Максимальное количество предложений, необходимое пользователю
-7. Список команд, для выбора способа сортировки **(если /bestdeal - смотри описание этой команды)
+#### Command /start
+After entering the command, the user is prompted for:
+1. City where the search will be carried out
+2. Choosing a city from the possible proposed options.
+3. Check-in date
+4. Departure date
+5. Currency for displaying the cost of offers
+6. The maximum number of offers required by the user
+7. List of commands to select the sorting method ** (if /bestdeal - see the description of this command)
 
 <br/><br/>
-#### Команда /lowprice
-После ввода команды у пользователя запрашивается:
-1. Город, где будет проводиться поиск
-2. Выбор города из возможных предложенных вариантов.
-3. Дата заезда
-4. Дата выезда
-5. Валюта для отображения стоимости предложений
-6. Максимальное количество предложений, необходимое пользователю
+#### Command /lowprice
+After entering the command, the user is prompted for:
+1. City where the search will be carried out
+2. Choosing a city from the possible proposed options.
+3. Check-in date
+4. Departure date
+5. Currency for displaying the cost of offers
+6. The maximum number of offers required by the user
 
 <br/><br/>
-#### Команда /highprice
-После ввода команды у пользователя запрашивается:
-1. Город, где будет проводиться поиск
-2. Выбор города из возможных предложенных вариантов.
-3. Дата заезда
-4. Дата выезда
-5. Валюта для отображения стоимости предложений
-6. Максимальное количество предложений, необходимое пользователю
+#### Command /highprice
+After entering the command, the user is prompted for:
+1. City where the search will be carried out
+2. Choosing a city from the possible proposed options.
+3. Check-in date
+4. Departure date
+5. Currency for displaying the cost of offers
+6. The maximum number of offers required by the user
 
 <br/><br/>
-#### Команда /bestdeal
-После ввода команды у пользователя запрашивается:
-1. Город, где будет проводиться поиск
-2. Выбор города из возможных предложенных вариантов.
-3. Дата заезда
-4. Дата выезда
-5. Валюта для отображения стоимости предложений
-6. Максимальное количество предложений, необходимое пользователю
-7. Подходящий диапазон цен (два числа через какой-либо разделитель)
-8. Максимальное удаление от центра города.
+#### Command /bestdeal
+After entering the command, the user is prompted for:
+1. City where the search will be carried out
+2. Choosing a city from the possible proposed options.
+3. Check-in date
+4. Departure date
+5. Currency for displaying the cost of offers
+6. The maximum number of offers required by the user
+7. Suitable price range (two numbers separated by a separator)
+8. Maximum distance from the city center.
 
 
 
 
 ---
-### Ответ от бота:
-После завершения обработки команды, бот высылает найденное количество предложений
-пользователю. Каждое предложение отправляется отдельным сообщением.
-#### Структура найденного предложения:
-- фото отеля;
-- название отеля;
-- расстояние от центра города;
-- стоимость всего проживания;
-- ссылка на отель в системе Hotels.com для бронирования;
+### Bot response:
+After completing the processing of the command, the bot sends the found number of proposals to the user. Each offer is sent in a separate message.
+#### The structure of the offer:
+- hotel photo;
+- the name of the hotel;
+- distance from the city center;
+- the cost of the entire stay;
+- link to the hotel in the Hotels.com system for booking;
 
 ---
-### Установка и настойка:
-1. Установите [python >= 3.9](https://www.python.org/downloads/)
-2. Установите зависимости с PIP, выполнив следующую команду в 
-командной строке:
+### Installation and setup:
+1. Install [python >= 3.9](https://www.python.org/downloads/)
+2. Install dependencies with PIP by running the following command in
+command line:
 ```
 pip install -r requirements.txt
 ```
-3. Клонируйте данный репозиторий себе
-4. Поговорите с @botfather в телеграм и создайте собственного бота.
-Необходимо получить ТОКЕН для вашего бота;
-5. Внесите, полученный от @botfather токен, в файл _config_example.py;
-6. Зарегистрируйтесь я на сайте [rapidapi.com](rapidapi.com);
-7. Пройдите по прямой ссылке на документацию [Hotels API Documentation](https://rapidapi.com/apidojo/api/hotels4/);
-8. Нажать кнопку Subscribe to Test;
-9. Выбрать бесплатный пакет (Basic);
-10. Необходимо получить ТОКЕН и ХОСТ от rapidapi.com и внести их в 
-файл _config_example.py;
-11. Переименуйте _config_example.py в _config.py
+3. Clone the given repository to yourself
+4. Talk to @botfather in telegram and create your own bot.
+You need to get a TOKEN for your bot;
+5. Add the token received from @botfather to the _config_example.py file;
+6. Register at [rapidapi.com] (https://rapidapi.com);
+7. Follow the direct link to the [Hotels API Documentation] (https://rapidapi.com/apidojo/api/hotels4/);
+8. Click the Subscribe to Test button;
+9. Choose a free package (Basic);
+10. You need to get TOKEN and HOST from rapidapi.com and add them to
+_config_example.py file;
+11. Rename _config_example.py to _config.py
 
-Бот готов к работе!
+The bot is ready to go!
 
-В командной строке перейдите в директорию, к которой находятся 
-файлы данного проекта и введите команду :
+In the command line, change to the directory where
+files of the given project and enter the command:
 ```
 python main.py
 ```

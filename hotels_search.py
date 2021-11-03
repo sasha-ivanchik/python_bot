@@ -108,7 +108,7 @@ def hotels_search(some_dict: Dict,
     try:
         response = main_response.json()
     except Exception:
-        return False
+        return "timeout"
 
     if main_response.status_code == 200 and response['result'] == 'OK':
 
@@ -122,9 +122,13 @@ def hotels_search(some_dict: Dict,
             # проверка наличия полной стоимости проживания и расчёт при её отсутствии
             nights = accommodation(some_dict['check_in'], some_dict['check_out'])
             if 'fullyBundledPricePerStay' in elem['ratePlan']['price']:
-                field_nums_list = re.findall(r'\d+', elem['ratePlan']['price']['fullyBundledPricePerStay'])
-                result[elem['name']]['price'] = f"{field_nums_list[0]} {some_dict['currency']} за {nights} суток"
-                result[elem['name']]['price_in_numbers'] = int(field_nums_list[0])
+                field_nums_list = re.findall(r"(?<![a-zA-Z:])[-+]?\d*[.,]?\d+",
+                                             elem['ratePlan']['price']['fullyBundledPricePerStay'])
+                result[elem['name']]['price'] = (f"{field_nums_list[0]} {some_dict['currency']} "
+                                                 f"за {field_nums_list[1]} суток")
+                price_for_compare = re.sub(r'[.,]', '', field_nums_list[0])
+                result[elem['name']]['price_in_numbers'] = int(price_for_compare)
+
             else:
                 result[elem['name']]['price'] = (re.sub(r"[^0-9]", "", elem["ratePlan"]["price"]["current"]) +
                                                  ' ' + some_dict["currency"] + ' за ' + str(nights) + ' суток')
@@ -137,7 +141,7 @@ def hotels_search(some_dict: Dict,
             result[elem['name']]['address'] = address
 
     else:
-        raise Warning('Технические неполадки')
+        return "timeout"
 
     # преобразуем словарь словарей в список чтобы отсортировать
     result_list = [{elem: result[elem]} for elem in result]

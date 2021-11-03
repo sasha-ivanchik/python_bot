@@ -42,8 +42,8 @@ def city_search(some_str: str) -> Dict and str:
                 result[elem['name']]['country'] = country_name
                 result[elem['name']]['id'] = elem["destinationId"]
         except Exception:
-            raise Warning('К сожалению, технические неполадки')
+            return 'timeout', locale
     else:
-        raise Warning('К сожалению, технические неполадки')
+        return 'timeout', locale
 
     return result, locale
